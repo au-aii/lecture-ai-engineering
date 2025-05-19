@@ -17,7 +17,7 @@ DATA_PATH = os.path.join(os.path.dirname(__file__), "../data/Titanic.csv")
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "../models")
 MODEL_PATH = os.path.join(MODEL_DIR, "titanic_model.pkl")
 BASELINE_MODEL_PATH = os.path.join(MODEL_DIR, "baseline_model.pkl")
-BASELINE_ACCURACY = 0.75 
+BASELINE_ACCURACY = 0.75
 
 
 @pytest.fixture
@@ -173,6 +173,7 @@ def test_model_reproducibility(sample_data, preprocessor):
     assert np.array_equal(
         predictions1, predictions2
     ), "モデルの予測結果に再現性がありません"
+
 
 def test_model_vs_baseline(train_model):
     """新しいモデルとベースラインモデルの精度比較"""
