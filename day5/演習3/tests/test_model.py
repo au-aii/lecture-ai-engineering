@@ -16,6 +16,8 @@ from sklearn.pipeline import Pipeline
 DATA_PATH = os.path.join(os.path.dirname(__file__), "../data/Titanic.csv")
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "../models")
 MODEL_PATH = os.path.join(MODEL_DIR, "titanic_model.pkl")
+BASELINE_MODEL_PATH = os.path.join(MODEL_DIR, "baseline_model.pkl")
+BASELINE_ACCURACY = 0.75 
 
 
 @pytest.fixture
@@ -171,3 +173,25 @@ def test_model_reproducibility(sample_data, preprocessor):
     assert np.array_equal(
         predictions1, predictions2
     ), "モデルの予測結果に再現性がありません"
+
+def test_model_vs_baseline(train_model):
+    """新しいモデルとベースラインモデルの精度比較"""
+    new_model, X_test, y_test = train_model
+
+    # 新モデルの精度
+    new_preds = new_model.predict(X_test)
+    new_acc = accuracy_score(y_test, new_preds)
+
+    # ベースラインモデルが存在しない場合はスキップ
+    if not os.path.exists(BASELINE_MODEL_PATH):
+        pytest.skip("ベースラインモデルが存在しないため比較できません")
+
+    # ベースラインモデルの読み込み
+    with open(BASELINE_MODEL_PATH, "rb") as f:
+        baseline_model = pickle.load(f)
+
+    baseline_preds = baseline_model.predict(X_test)
+    baseline_acc = accuracy_score(y_test, baseline_preds)
+
+    # 新しいモデルが同等以上の性能であることを検証
+    assert new_acc >= baseline_acc, f"性能劣化: baseline={baseline_acc}, new={new_acc}"
